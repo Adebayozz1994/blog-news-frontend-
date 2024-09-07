@@ -38,7 +38,7 @@
         </div> -->
 
         <!-- Role (only for register) -->
-        <div class="mb-4" v-if="route.path === 'admin/register'">
+        <div class="mb-4" v-if="route.path === '/admin/register'">
           <label for="role" class="block text-gray-700 font-semibold mb-2">Role</label>
           <input
             type="text"
@@ -87,53 +87,61 @@
 
 <script setup>
 import { ref } from 'vue'
-// import axios from 'axios'
-// import {url} from '../data'
-import { useRoute } from 'vue-router';
+import axios from 'axios'
+import {url} from '../data'
+import {useRouter, useRoute } from 'vue-router';
 
 const name = ref('');
 const email = ref('');
 const password = ref('');
 const role = ref('');
 
-// const status = ref(null);
-// const router = useRouter();
+const status = ref(null);
+const router = useRouter();
 const route = useRoute();
-// const errors = ref([]);
-// const error = ref('');
+const errors = ref([]);
+const error = ref('');
 
-// const message = ref(null);
+const message = ref(null);
 
 const register = () => {
-    // const adminDetails = {
-    //     fullname: name.value,
-    //     email: email.value, 
-    //     password: password.value,
-    //     role: role.value,
-    // };
-    // axios.post(`${url}admin/register`, adminDetails)
-    //     .then(res => {
-    //         if(res.data.status){
-    //             router.push('/admin/login');
-    //             status.value = res.data.status;
-    //         } else {
-    //             errors.value = res.data.errors;
-    //             status.value = res.data.status;
-    //             message.value = res.data.message;
-    //         }
-    //     })
+    const adminDetails = {
+        name: name.value,
+        email: email.value, 
+        password: password.value,
+        role: role.value,
+    };
+    console.log(adminDetails);
+    
+    axios.post(`${url}admin/register`, adminDetails)
+        .then(res => {
+            if(res.data.status){
+                router.push('/admin/login');
+                status.value = res.data.status;
+            } else {
+                errors.value = res.data.errors;
+                status.value = res.data.status;
+                message.value = res.data.message;
+                console.log('Registration failed:', res.data);
+            }
+        })
+        .catch(err => {
+          console.error('Error in registration:', err.response.data);
+        });
 }
 
 const login = () => {
-    // const loginDetails = {email: email.value, password: password.value}
-    // axios.post(`${url}admin/login`, loginDetails).then(res => {
-    //     if(res.data.status){
-    //         localStorage.setItem('token', res.data.token);
-    //         router.push('/admin/dashboard');
-    //     } else {
-    //         error.value = res.data.error;
-    //     }
-    // });
+    const loginDetails = {email: email.value, password: password.value}
+    console.log(loginDetails);
+    
+    axios.post(`${url}admin/login`, loginDetails).then(res => {
+        if(res.data.status){
+            localStorage.setItem('token', res.data.token);
+            router.push('/admin/dashboard');
+        } else {
+            error.value = res.data.error;
+        }
+    });
 }
 </script>
 
