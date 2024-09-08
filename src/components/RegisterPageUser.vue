@@ -109,9 +109,10 @@ const register = () => {
             }
         })
         .catch(err => {
-          console.error('Error in registration:', err.response.data);
+          console.error('Error in registration:', err.response);
         });
 }
+
 
 const login = () => {
     const loginDetails = {email: email.value, password: password.value}
@@ -119,7 +120,6 @@ const login = () => {
     
     axios.post(`${url}login`, loginDetails).then(res => {
         if(res.data.status){
-            localStorage.setItem('token', res.data.token);
             router.push('dashboard');
         } else {
             error.value = res.data.error;
