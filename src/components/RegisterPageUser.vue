@@ -113,13 +113,13 @@ const register = () => {
         });
 }
 
-
 const login = () => {
     const loginDetails = {email: email.value, password: password.value}
     console.log(loginDetails);
     
     axios.post(`${url}login`, loginDetails).then(res => {
         if(res.data.status){
+            localStorage.setItem('token', res.data.token);
             router.push('dashboard');
         } else {
             error.value = res.data.error;
