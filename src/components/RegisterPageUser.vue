@@ -27,16 +27,6 @@
           />
         </div>
 
-        <!-- Email Errors
-        <div v-for="error in errors['email']" :key="error" class="mb-2">
-          <span class="text-red-500 text-sm">{{ error }}</span>
-        </div> -->
-
-        <!-- Login Error -->
-        <!-- <div class="mb-4">
-          <span class="text-red-500 text-sm">{{ error }}</span>
-        </div> -->
-
         <!-- Password -->
         <div class="mb-4">
           <label for="password" class="block text-gray-700 font-semibold mb-2">Password</label>
@@ -48,11 +38,6 @@
             class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
           />
         </div>
-
-        <!-- Password Errors -->
-        <!-- <div v-for="error in errors['password']" :key="error" class="mb-2">
-          <span class="text-red-500 text-sm">{{ error }}</span>
-        </div> -->
 
         <!-- Submit Button -->
         <div class="text-right mt-6">
@@ -71,60 +56,68 @@
 <script setup>
 import { ref } from 'vue'
 import axios from 'axios'
-import {url} from '../data'
-import {useRouter, useRoute } from 'vue-router';
+import { url } from '../data'
+import { useRouter, useRoute } from 'vue-router'
 
-const name = ref('');
-const email = ref('');
-const password = ref('');
+const name = ref('')
+const email = ref('')
+const password = ref('')
+const status = ref(null)
+const router = useRouter()
+const route = useRoute()
+const errors = ref([])
+const error = ref('')
+const message = ref(null)
 
-
-const status = ref(null);
-const router = useRouter();
-const route = useRoute();
-const errors = ref([]);
-const error = ref('');
-
-const message = ref(null);
-
-const register = () => {
-    const adminDetails = {
-        name: name.value,
-        email: email.value, 
-        password: password.value,
-
-    };
-    console.log(adminDetails);
-    
-    axios.post(`${url}register`, adminDetails)
-        .then(res => {
-            if(res.data.status){
-                router.push('/login');
-                status.value = res.data.status;
-            } else {
-                errors.value = res.data.errors;
-                status.value = res.data.status;
-                message.value = res.data.message;
-                console.log('Registration failed:', res.data);
-            }
-        })
-        .catch(err => {
-          console.error('Error in registration:', err.response);
-        });
+// Function to get CSRF Token
+const getCsrfToken = async () => {
+  await axios.get(`${url}sanctum/csrf-cookie`)
 }
 
-const login = () => {
-    const loginDetails = {email: email.value, password: password.value}
-    console.log(loginDetails);
-    
-    axios.post(`${url}login`, loginDetails).then(res => {
-        if(res.data.status){
-            localStorage.setItem('token', res.data.token);
-            router.push('dashboard');
-        } else {
-            error.value = res.data.error;
-        }
-    });
+// Function for registration
+const register = async () => {
+  await getCsrfToken() // Get CSRF token before registration
+
+  const adminDetails = {
+    name: name.value,
+    email: email.value,
+    password: password.value,
+  }
+
+  try {
+    const res = await axios.post(`${url}register`, adminDetails)
+    if (res.data.status) {
+      router.push('/login')
+      status.value = res.data.status
+    } else {
+      errors.value = res.data.errors
+      status.value = res.data.status
+      message.value = res.data.message
+      console.log('Registration failed:', res.data)
+    }
+  } catch (err) {
+    console.error('Error in registration:', err.response)
+  }
+}
+
+// Function for login
+const login = async () => {
+  await getCsrfToken() // Get CSRF token before logging in
+
+  const loginDetails = {
+    email: email.value,
+    password: password.value,
+  }
+
+  try {
+    const res = await axios.post(`${url}login`, loginDetails)
+    console.log('Login successful', res.data)
+    // router.push('/dashboard');
+    // Handle login success (e.g., redirect or store token)
+  } catch (err) {
+    error.value = err.response?.data?.message || 'An error occurred'
+    console.error('Login error:', err.response || err.message)
+  }
 }
 </script>
 

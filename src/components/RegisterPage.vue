@@ -27,15 +27,15 @@
           />
         </div>
 
-        <!-- Email Errors
+        <!-- Email Errors -->
         <div v-for="error in errors['email']" :key="error" class="mb-2">
           <span class="text-red-500 text-sm">{{ error }}</span>
-        </div> -->
+        </div> 
 
         <!-- Login Error -->
-        <!-- <div class="mb-4">
+        <div class="mb-4">
           <span class="text-red-500 text-sm">{{ error }}</span>
-        </div> -->
+        </div>
 
         <!-- Role (only for register) -->
         <div class="mb-4" v-if="route.path === '/admin/register'">
@@ -50,9 +50,9 @@
         </div>
 
         <!-- Role Errors -->
-        <!-- <div v-for="error in errors['role']" :key="error" class="mb-2">
+        <div v-for="error in errors['role']" :key="error" class="mb-2">
           <span class="text-red-500 text-sm">{{ error }}</span>
-        </div> -->
+        </div>
 
         <!-- Password -->
         <div class="mb-4">
@@ -67,9 +67,9 @@
         </div>
 
         <!-- Password Errors -->
-        <!-- <div v-for="error in errors['password']" :key="error" class="mb-2">
+        <div v-for="error in errors['password']" :key="error" class="mb-2">
           <span class="text-red-500 text-sm">{{ error }}</span>
-        </div> -->
+        </div>
 
         <!-- Submit Button -->
         <div class="text-right mt-6">
@@ -137,6 +137,12 @@ const login = () => {
     axios.post(`${url}admin/login`, loginDetails).then(res => {
         if(res.data.status){
             localStorage.setItem('token', res.data.token);
+            localStorage.setItem('role', res.data.role);
+
+            console.log(res.data.token);
+            console.log(res.data.role);
+            
+            
             router.push('/admin/dashboard');
         } else {
             error.value = res.data.error;

@@ -1,56 +1,61 @@
 <template>
-    <h4>dashboard</h4>
-    <p>welcome, {{ adminDetails.name }}</p>
+    <div class="dashboard">
+        <h4>Dashboard</h4>
 
+        <!-- Displaying the User's Name and Email -->
+        <div class="user-info">
+            <p><strong>Name:</strong> {{ user.name }}</p>
+            <p><strong>Email:</strong> {{ user.email }}</p>
+        </div>
 
-    <button class="btn btn-red-400" @click="logout">Logout</button>
-
+        <!-- Logout Button -->
+        <button @click="logout" class="bg-red-500 text-white py-2 px-4 rounded-lg hover:bg-red-600">
+            Logout
+        </button>
+    </div>
 </template>
 
 <script setup>
-import { onMounted, ref } from 'vue';
-import {url} from '../data.js'
-import axios from 'axios'
+import { ref, onMounted } from 'vue'
 import { useRouter } from 'vue-router';
+import axios from 'axios';
 
+const user = ref({ name: '', email: '' });
+const router = useRouter();
 
-
-    const router = useRouter()
-    const adminDetails = ref({})
-
-    onMounted(() => {
-        if(localStorage['token']){
-
-            const token = localStorage['token']
-            console.log(token);
-            
-            axios.post(`${url}admin/get`, {token}).then(res => {
-                console.log(res);
-                
-                if(res.data.status){
-                    adminDetails.value = res.data.admin
-                    console.log(res.data);
-                    
-                }else{
-                    router.push('/admin/login')
+const fetchUserInfo = () => {
+    const token = localStorage.getItem('token');
+    if (token) {
+        axios.post('http://localhost:8000/api/admin/getAdmin', { token })
+            .then(res => {
+                if (res.data.status) {
+                    user.value.name = res.data.admin.name;
+                    user.value.email = res.data.admin.email;
+                } else {
+                    console.error('Failed to fetch user info');
                 }
             })
-        }else{
-            router.push('/admin/login')
-        }
-        
-        
-    })
+            .catch(error => {
+                console.error('Error fetching user info:', error);
+            });
+    } else {
+        // If there's no token, redirect to login page
+        router.push('/admin/login');
+    }
+};
 
-    const logout = () => {
-         const token = localStorage['token'];
-         axios.post(`${url}admin/logout`, {token}).then(() => {
+// Call fetchUserInfo when the component is mounted
+onMounted(fetchUserInfo);
+
+const logout = () => {
+    const token = localStorage['token'];
+         axios.post('http://localhost:8000/api/admin/logout', {token}).then(() => {
                  localStorage.removeItem('token')
             router.push('/admin/login');
          })
-    }
+};
 </script>
 
-<style>
-
+<style scoped>
+/* Add any custom styling here */
 </style>
