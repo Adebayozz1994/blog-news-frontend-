@@ -69,14 +69,14 @@ const errors = ref([])
 const error = ref('')
 const message = ref(null)
 
-// Function to get CSRF Token
+
 const getCsrfToken = async () => {
   await axios.get(`${url}sanctum/csrf-cookie`)
 }
 
-// Function for registration
+
 const register = async () => {
-  await getCsrfToken() // Get CSRF token before registration
+  await getCsrfToken() 
 
   const adminDetails = {
     name: name.value,
@@ -100,23 +100,28 @@ const register = async () => {
   }
 }
 
-// Function for login
+
 const login = async () => {
-  await getCsrfToken() // Get CSRF token before logging in
+  await getCsrfToken() 
 
   const loginDetails = {
     email: email.value,
     password: password.value,
   }
 
-  try {
-    const res = await axios.post(`${url}login`, loginDetails)
-    console.log('Login successful', res.data)
-    // router.push('/dashboard');
-    // Handle login success (e.g., redirect or store token)
+    try {
+    const res = await axios.post(`${url}login`, loginDetails);
+
+    if (res.data.status) {
+      console.log('Login successful', res.data);
+      router.push('/dashboard');
+    } else {
+      error.value = res.data.message || 'Login failed';
+      console.error('Login error:', res.data.errors);
+    }
   } catch (err) {
-    error.value = err.response?.data?.message || 'An error occurred'
-    console.error('Login error:', err.response || err.message)
+    error.value = err.response?.data?.message || 'An error occurred';
+    console.error('Login error:', err.response || err.message);
   }
 }
 </script>
