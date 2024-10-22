@@ -2,6 +2,8 @@
     <div v-if="user">
       <h1>Welcome, {{ user.name }}</h1>
       <p>Email: {{ user.email }}</p>
+     
+      <button @click="logout">Logout</button>
     </div>
     <div v-else>
       <p>{{ error }}</p>
@@ -11,40 +13,66 @@
   <script setup>
   import axios from 'axios';
   import { ref, onMounted } from 'vue';
-  import { url } from '@/data'; 
+  import { url } from '@/data';
+  import { useRouter } from 'vue-router';
   
   const user = ref(null);
   const error = ref('');
+  const router = useRouter();  
   
-  axios.defaults.withCredentials = true; 
-  const getCsrfToken = async () => {
-  await axios.get(`${url}sanctum/csrf-cookie`)
-}
-  
-  const getUser = async () => {
-      await getCsrfToken() 
-      try {
-    const res = await axios.get(`${url}user`);
-    if (res.data.status) {
-      user.value = res.data.user;
-
-      console.log('Current User:', user.value);
-    } else {
-      error.value = 'Failed to fetch user';
-    }
-  } catch (err) {
-    error.value = err.response?.data?.message || 'An error occurred';
-    console.error('Error fetching user:', err.response || err.message);
-  }
-  };
+  axios.defaults.withCredentials = true;
   
  
+  const getCsrfToken = async () => {
+    await axios.get(`${url}sanctum/csrf-cookie`);
+  };
+  
+  
+  const getUser = async () => {
+    await getCsrfToken();
+    try {
+      const res = await axios.get(`${url}user`);
+      if (res.data.status) {
+        user.value = res.data.user;
+        console.log('Current User:', user.value);
+      } else {
+        error.value = 'Failed to fetch user';
+      }
+    } catch (err) {
+      error.value = err.response?.data?.message || 'An error occurred';
+      console.error('Error fetching user:', err.response || err.message);
+    }
+  };
+  
+  
+  const logout = async () => {
+    await getCsrfToken();
+    try {
+      await axios.post(`${url}logout`);  
+      user.value = null;  
+      router.push('/login');  
+    } catch (err) {
+      console.error('Logout error:', err.response || err.message);
+    }
+  };
+  
+  
   onMounted(() => {
     getUser();
   });
-  
   </script>
   
   <style scoped>
+  button {
+    padding: 8px 16px;
+    background-color: #f56565;
+    color: white;
+    border: none;
+    cursor: pointer;
+  }
+  
+  button:hover {
+    background-color: #e53e3e;
+  }
   </style>
   

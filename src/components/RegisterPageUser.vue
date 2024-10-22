@@ -13,6 +13,7 @@
             v-model="name"
             class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
           />
+          <p v-if="errors.name" class="text-red-500 text-sm mt-2">{{ errors.name[0] }}</p> 
         </div>
 
         <!-- Email -->
@@ -25,6 +26,7 @@
             v-model="email"
             class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
           />
+          <p v-if="errors.email" class="text-red-500 text-sm mt-2">{{ errors.email[0] }}</p> 
         </div>
 
         <!-- Password -->
@@ -37,7 +39,11 @@
             v-model="password"
             class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
           />
+          <p v-if="errors.password" class="text-red-500 text-sm mt-2">{{ errors.password[0] }}</p> 
         </div>
+
+        <!-- General error message -->
+        <div v-if="message" class="text-red-500 text-sm mt-2">{{ message }}</div>
 
         <!-- Submit Button -->
         <div class="text-right mt-6">
@@ -53,79 +59,80 @@
   </div>
 </template>
 
+
 <script setup>
-import { ref } from 'vue'
-import axios from 'axios'
-import { url } from '../data'
-import { useRouter, useRoute } from 'vue-router'
+import { ref } from 'vue';
+import axios from 'axios';
+import { url } from '../data';
+import { useRouter, useRoute } from 'vue-router';
 
-const name = ref('')
-const email = ref('')
-const password = ref('')
-const status = ref(null)
-const router = useRouter()
-const route = useRoute()
-const errors = ref([])
-const error = ref('')
-const message = ref(null)
+const name = ref('');
+const email = ref('');
+const password = ref('');
+const status = ref(null);
+const router = useRouter();
+const route = useRoute();
+const errors = ref({});
+const error = ref('');
+const message = ref(null);
 
+axios.defaults.withCredentials = true;
 
 const getCsrfToken = async () => {
-  await axios.get(`${url}sanctum/csrf-cookie`)
-}
-
+  await axios.get(`${url}sanctum/csrf-cookie`);
+};
 
 const register = async () => {
-  await getCsrfToken() 
+  await getCsrfToken();
 
   const adminDetails = {
     name: name.value,
     email: email.value,
     password: password.value,
-  }
+  };
 
   try {
-    const res = await axios.post(`${url}register`, adminDetails)
+    const res = await axios.post(`${url}register`, adminDetails);
     if (res.data.status) {
-      router.push('/login')
-      status.value = res.data.status
+      router.push('/login');
+      status.value = res.data.status;
     } else {
-      errors.value = res.data.errors
-      status.value = res.data.status
-      message.value = res.data.message
-      console.log('Registration failed:', res.data)
+      errors.value = res.data.errors || {};
+      message.value = res.data.message || 'Registration failed';
     }
   } catch (err) {
-    console.error('Error in registration:', err.response)
+    errors.value = err.response?.data?.errors || {}; 
+    message.value = err.response?.data?.message || 'An error occurred';
+    console.error('Error in registration:', err.response || err.message);
   }
-}
-
+};
 
 const login = async () => {
-  await getCsrfToken() 
+  await getCsrfToken();
 
   const loginDetails = {
     email: email.value,
     password: password.value,
-  }
+  };
 
-    try {
+  try {
     const res = await axios.post(`${url}login`, loginDetails);
-
     if (res.data.status) {
       console.log('Login successful', res.data);
       router.push('/dashboard');
     } else {
       error.value = res.data.message || 'Login failed';
-      console.error('Login error:', res.data.errors);
+      errors.value = res.data.errors || {};  
     }
   } catch (err) {
+    errors.value = err.response?.data?.errors || {};  
     error.value = err.response?.data?.message || 'An error occurred';
     console.error('Login error:', err.response || err.message);
   }
-}
+};
 </script>
 
+
 <style scoped>
-/* Additional custom styles, if needed */
+
 </style>
