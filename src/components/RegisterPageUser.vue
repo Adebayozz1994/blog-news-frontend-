@@ -85,14 +85,14 @@ const getCsrfToken = async () => {
 const register = async () => {
   await getCsrfToken();
 
-  const adminDetails = {
+  const UserDetails = {
     name: name.value,
     email: email.value,
     password: password.value,
   };
 
   try {
-    const res = await axios.post(`${url}register`, adminDetails);
+    const res = await axios.post(`${url}register`, UserDetails);
     if (res.data.status) {
       router.push('/login');
       status.value = res.data.status;

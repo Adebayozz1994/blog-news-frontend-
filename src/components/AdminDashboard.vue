@@ -12,6 +12,9 @@
         <button @click="logout" class="bg-red-500 text-white py-2 px-4 rounded-lg hover:bg-red-600">
             Logout
         </button>
+        <button @click="register" class="bg-red-500 text-white py-2 px-4 rounded-lg hover:bg-red-600">
+            Register
+        </button>
     </div>
 </template>
 
@@ -54,6 +57,9 @@ const logout = () => {
             router.push('/admin/login');
          })
 };
+const register = () => {
+    router.push('/admin/register');
+}
 </script>
 
 <style scoped>

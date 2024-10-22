@@ -1,14 +1,24 @@
 <template>
-    <div v-if="user">
-      <h1>Welcome, {{ user.name }}</h1>
-      <p>Email: {{ user.email }}</p>
-     
-      <button @click="logout">Logout</button>
-    </div>
-    <div v-else>
-      <p>{{ error }}</p>
+    <div class="flex justify-center items-center min-h-screen bg-gray-100">
+      <div class="bg-white shadow-md rounded-lg p-6 max-w-md w-full text-center">
+        <!-- User Info -->
+        <div v-if="user">
+          <h1 class="text-2xl font-bold mb-4">Welcome, {{ user.name }}</h1>
+          <p class="text-gray-600 mb-6">Email: {{ user.email }}</p>
+  
+          <button @click="logout" class="w-full bg-red-500 text-white py-2 rounded-lg hover:bg-red-600 transition duration-300">
+            Logout
+          </button>
+        </div>
+  
+        <!-- Error Message -->
+        <div v-else>
+          <p class="text-red-500">{{ error }}</p>
+        </div>
+      </div>
     </div>
   </template>
+  
   
   <script setup>
   import axios from 'axios';

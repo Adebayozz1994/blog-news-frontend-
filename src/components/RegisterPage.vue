@@ -86,7 +86,7 @@
 </template>
 
 <script setup>
-import { ref } from 'vue'
+import { onMounted, ref } from 'vue'
 import axios from 'axios'
 import {url} from '../data'
 import {useRouter, useRoute } from 'vue-router';
@@ -101,8 +101,16 @@ const router = useRouter();
 const route = useRoute();
 const errors = ref([]);
 const error = ref('');
-
 const message = ref(null);
+
+onMounted(() => {
+  const token = localStorage.getItem('token');
+  const userRole = localStorage.getItem('role');
+
+  if (!token || userRole !== 'ceo') {
+    router.push('/admin/login'); 
+  }
+});
 
 const register = () => {
     const adminDetails = {
